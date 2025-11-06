@@ -26,7 +26,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*', // In production, specify allowed origins
+    origin: process.env.NODE_ENV === 'production' 
+      ? 'https://your-frontend-domain.com' 
+      : '*',
     methods: ['GET', 'POST']
   }
 });
