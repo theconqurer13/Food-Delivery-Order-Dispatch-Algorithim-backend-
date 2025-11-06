@@ -1,4 +1,4 @@
-const DispatchService = require('../services/dispatchService');
+const DispatchService = require('../services/dispatchServices');
 const OrderModel = require('../models/orderModel');
 
 class DispatchController {

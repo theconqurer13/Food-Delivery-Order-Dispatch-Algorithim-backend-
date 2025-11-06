@@ -5,22 +5,22 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 // Import routes
-const authRoutes = require('./routes/authRoutes');
-const orderRoutes = require('./routes/orderRoutes');
-const riderRoutes = require('./routes/riderRoutes');
-const dispatchRoutes = require('./routes/dispatchRoutes');
-const assignmentRoutes = require('./routes/assignmentRoutes');
-const fraudRoutes = require('./routes/fraudRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
+const riderRoutes = require('./src/routes/riderRoutes');
+const dispatchRoutes = require('./src/routes/dispatchRoutes');
+const assignmentRoutes = require('./src/routes/assignmentRoutes');
+const fraudRoutes = require('./src/routes/fraudRoutes');
 
 // Import socket handler
-const setupSocketHandlers = require('./sockets/socketHandler');
+const setupSocketHandlers = require('./src/sockets/socketHandler');
 
 // Import jobs
-const FraudJob = require('./jobs/fraudJob');
+const FraudJob = require('./src/jobs/fraudJob');
 
 // Test database connection
-const { pool } = require('./config/database');
-const redisClient = require('./config/redis');
+const { pool } = require('./src/config/database');
+const redisClient = require('./src/config/redis');
 
 const app = express();
 const server = http.createServer(app);
