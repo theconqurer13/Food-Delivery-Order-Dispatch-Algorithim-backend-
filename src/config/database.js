@@ -4,22 +4,45 @@ require('dotenv').config();
 // PostgreSQL connection pool configuration
 // Prioritize DATABASE_URL if provided (for production/cloud deployments like Render)
 const isProduction = process.env.NODE_ENV === 'production';
-const databaseUrl = process.env.DATABASE_URL;
-const hasDatabaseUrl = !!databaseUrl && databaseUrl.trim() !== '';
+
+// Get DATABASE_URL - check multiple possible sources
+// Render sets DATABASE_URL automatically, but we should also check if it exists
+let databaseUrl = process.env.DATABASE_URL || process.env.DATABASE_CONNECTION_STRING || '';
+databaseUrl = databaseUrl.trim();
+
+// Check if we're in a cloud environment (Render, Heroku, etc.)
+// In cloud environments, DATABASE_URL should always be present
+const isCloudEnvironment = process.env.RENDER || process.env.HEROKU || process.env.RAILWAY_ENVIRONMENT || isProduction;
+const hasDatabaseUrl = databaseUrl.length > 0;
 
 // Log configuration for debugging (without sensitive data)
 console.log('🔧 Database Configuration:');
 console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`   Cloud environment detected: ${isCloudEnvironment}`);
 console.log(`   DATABASE_URL present: ${hasDatabaseUrl}`);
+
 if (hasDatabaseUrl) {
   // Log first 20 chars and last 10 chars of URL for debugging
   const urlPreview = databaseUrl.substring(0, 20) + '...' + databaseUrl.substring(databaseUrl.length - 10);
   console.log(`   DATABASE_URL preview: ${urlPreview}`);
 } else {
+  if (isCloudEnvironment) {
+    console.error('⚠️  WARNING: DATABASE_URL not found in cloud environment!');
+    console.error('   This will cause connection errors. Please ensure DATABASE_URL is set.');
+  }
   console.log(`   Using individual DB params: ${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}`);
 }
 
 let poolConfig;
+
+// IMPORTANT: In cloud environments (Render, Heroku, etc.), we MUST use DATABASE_URL
+// If we're in a cloud environment but DATABASE_URL is missing, throw an error
+if (isCloudEnvironment && !hasDatabaseUrl) {
+  throw new Error(
+    'DATABASE_URL is required in cloud environments but was not found. ' +
+    'Please ensure DATABASE_URL is set in your environment variables.'
+  );
+}
 
 if (hasDatabaseUrl) {
   // Use connection string exclusively (for Render, Heroku, etc.)
@@ -50,6 +73,14 @@ if (hasDatabaseUrl) {
   }
 } else {
   // Use individual connection parameters (for local development only)
+  // Only allow this if NOT in a cloud environment
+  if (isCloudEnvironment) {
+    throw new Error(
+      'Cannot use individual DB connection parameters in cloud environment. ' +
+      'DATABASE_URL must be provided.'
+    );
+  }
+  
   poolConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
@@ -88,19 +119,46 @@ async function testConnection() {
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
-    console.log('✅ Database connection test successful');
-    console.log(`   PostgreSQL version: ${result.rows[0].pg_version.split(' ')[0]} ${result.rows[0].pg_version.split(' ')[1]}`);
+    
+    if (result && result.rows && result.rows.length > 0 && result.rows[0]) {
+      console.log('✅ Database connection test successful');
+      const pgVersion = result.rows[0].pg_version;
+      if (pgVersion) {
+        const versionParts = pgVersion.split(' ');
+        const versionString = versionParts.length >= 2 
+          ? `${versionParts[0]} ${versionParts[1]}` 
+          : pgVersion;
+        console.log(`   PostgreSQL version: ${versionString}`);
+      }
+      console.log(`   Current time: ${result.rows[0].current_time}`);
+    } else {
+      console.log('✅ Database connection test successful (no version info available)');
+    }
     client.release();
   } catch (error) {
     console.error('❌ Database connection test failed:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Error stack:', error.stack);
     console.error('   Connection config:', {
       hasConnectionString: !!poolConfig.connectionString,
       hasHost: !!poolConfig.host,
       host: poolConfig.host || 'N/A',
       port: poolConfig.port || 'N/A',
-      ssl: poolConfig.ssl || 'disabled'
+      ssl: poolConfig.ssl ? 'enabled' : 'disabled',
+      usingConnectionString: !!poolConfig.connectionString,
+      isCloudEnvironment: isCloudEnvironment,
+      hasDatabaseUrl: hasDatabaseUrl
     });
+    
+    // If we're in a cloud environment and using host-based config, this is a critical error
+    if (isCloudEnvironment && poolConfig.host && !poolConfig.connectionString) {
+      console.error('❌ CRITICAL: Using host-based connection in cloud environment!');
+      console.error('   This should never happen. DATABASE_URL should be used instead.');
+      console.error('   Please check your environment variables on Render.');
+    }
+    
     // Don't throw - let the app start and retry later
+    // But log the error clearly for debugging
   }
 }
 
