@@ -2,6 +2,12 @@
 
 Complete backend system for food delivery with real-time rider tracking, order dispatch algorithm, and fraud detection.
 
+## 🌐 Live Deployment
+
+**API Base URL:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/)
+
+**Health Check:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health)
+
 ## 🎯 Features
 
 1. **Real-time Location Tracking**
@@ -279,7 +285,12 @@ final_score = (w1 × distance_score) +
 
 ### Setup Environment Variables
 ```
+# For local development
 BASE_URL = http://localhost:3004
+
+# For live deployment
+BASE_URL = https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com
+
 TOKEN = <paste JWT token after login>
 RIDER_ID = <rider UUID>
 ORDER_ID = <order UUID>
@@ -460,8 +471,11 @@ POST {{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}/complete
 # Install wscat
 npm install -g wscat
 
-# Connect
+# Connect to local development
 wscat -c ws://localhost:3000
+
+# Connect to live deployment
+wscat -c wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com
 
 # Authenticate
 > {"event": "auth", "data": {"token": "YOUR_JWT_TOKEN", "device_id": "test-device"}}
@@ -476,9 +490,10 @@ wscat -c ws://localhost:3000
 ### Using Postman WebSocket (if supported)
 
 1. Create new WebSocket request
-2. URL: `ws://localhost:3000`
-3. Send auth message first
-4. Then send location updates or subscribe messages
+2. URL (local): `ws://localhost:3000`
+3. URL (live): `wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com`
+4. Send auth message first
+5. Then send location updates or subscribe messages
 
 ---
 
