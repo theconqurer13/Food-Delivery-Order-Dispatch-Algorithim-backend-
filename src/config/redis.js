@@ -5,12 +5,14 @@ require('dotenv').config();
 const redisClient = redis.createClient({
   url: process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
   socket: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: process.env.REDIS_PORT || 6379,
-    
+    reconnectStrategy: (retries) => {
+      if (retries > 10) {
+        console.error('❌ Too many Redis reconnection attempts');
+        return new Error('Too many retries');
+      }
+      return retries * 100; // Reconnect after retries * 100ms
+    }
   }
-  // Optional: Add password if Redis requires authentication
-  // password: process.env.REDIS_PASSWORD,
 });
 
 // Connect to Redis
