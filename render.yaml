@@ -9,23 +9,17 @@ services:
         value: production
       - key: PORT
         value: 10000
-      # Add other environment variables from your .env file
-      - key: PORT
-        value: 3004
       - key: DATABASE_URL
-        value: postgres://postgres:postgres@localhost:5432/food_delivery
+        fromDatabase:
+          name: food-delivery-db
+          property: connectionString
       - key: REDIS_URL
-        value: redis://localhost:6379
+        fromService:
+          type: redis
+          property: connectionString
       - key: JWT_SECRET
-        value: FOODDELIVERY7007 
+        generateValue: true
       - key: LOCATION_TTL_SECONDS
         value: 30
       - key: USE_POSTGIS
         value: false
-      - key: DB_HOST
-        fromDatabase:
-          name: your-db-name
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      # Add other required environment variables

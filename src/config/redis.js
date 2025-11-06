@@ -3,10 +3,11 @@ require('dotenv').config();
 
 // Create Redis client
 const redisClient = redis.createClient({
+  url: process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
   socket: {
     host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
+    
   }
   // Optional: Add password if Redis requires authentication
   // password: process.env.REDIS_PASSWORD,
