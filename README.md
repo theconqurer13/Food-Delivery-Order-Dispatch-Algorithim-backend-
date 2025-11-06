@@ -279,7 +279,7 @@ final_score = (w1 × distance_score) +
 
 ### Setup Environment Variables
 ```
-BASE_URL = http://localhost:3000
+BASE_URL = http://localhost:3004
 TOKEN = <paste JWT token after login>
 RIDER_ID = <rider UUID>
 ORDER_ID = <order UUID>
