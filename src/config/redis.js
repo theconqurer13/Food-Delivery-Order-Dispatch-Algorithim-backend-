@@ -2,7 +2,7 @@ const redis = require('redis');
 require('dotenv').config();
 
 // Create Redis client
-const redisClient = redis.createClient({
+const redisOptions = {
   url: process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`,
   socket: {
     reconnectStrategy: (retries) => {
@@ -10,10 +10,17 @@ const redisClient = redis.createClient({
         console.error('❌ Too many Redis reconnection attempts');
         return new Error('Too many retries');
       }
-      return retries * 100; // Reconnect after retries * 100ms
+      return Math.min(retries * 100, 3000); // Reconnect with a max delay of 3s
     }
   }
-});
+};
+
+// For Upstash/Render, enable TLS
+if (process.env.NODE_ENV === 'production' && redisOptions.url.includes('upstash')) {
+  redisOptions.socket.tls = true;
+}
+
+const redisClient = redis.createClient(redisOptions);
 
 // Connect to Redis
 (async () => {
