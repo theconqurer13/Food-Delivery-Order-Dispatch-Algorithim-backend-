@@ -6,8 +6,8 @@ services:
     container_name: food_delivery_postgres
     environment:
       POSTGRES_DB: food_delivery
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: theConqueror
+      POSTGRES_PASSWORD: theConqueror@123
     ports:
       - "5432:5432"
     volumes:
@@ -36,8 +36,8 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=food_delivery
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_USER=theConqueror
+      - DB_PASSWORD=theConqueror@123
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_SECRET=docker_jwt_secret_key_change_in_production

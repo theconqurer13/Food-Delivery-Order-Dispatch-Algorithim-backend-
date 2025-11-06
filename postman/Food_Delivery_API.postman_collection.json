@@ -1,0 +1,782 @@
+{
+    "info": {
+      "name": "Food Delivery API",
+      "description": "Complete API collection for food delivery backend with real-time tracking and fraud detection",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": [
+        {
+          "key": "token",
+          "value": "{{TOKEN}}",
+          "type": "string"
+        }
+      ]
+    },
+    "item": [
+      {
+        "name": "Authentication",
+        "item": [
+          {
+            "name": "Register Customer",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Test Customer\",\n  \"phone\": \"9999988888\",\n  \"email\": \"customer@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"customer\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/auth/register",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Register Rider",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Test Rider\",\n  \"phone\": \"8888877777\",\n  \"email\": \"rider@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"rider\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/auth/register",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "auth", "register"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Login",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "// Save token to environment",
+                    "const response = pm.response.json();",
+                    "if (response.token) {",
+                    "    pm.environment.set('TOKEN', response.token);",
+                    "    pm.environment.set('USER_ID', response.user.id);",
+                    "    console.log('Token saved:', response.token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"phone\": \"9999988888\",\n  \"password\": \"password123\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/auth/login",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "auth", "login"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Profile",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/auth/profile",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "auth", "profile"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Logout",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/auth/logout",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "auth", "logout"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Orders",
+        "item": [
+          {
+            "name": "Create Order",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.order && response.order.id) {",
+                    "    pm.environment.set('ORDER_ID', response.order.id);",
+                    "    console.log('Order ID saved:', response.order.id);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"customer_id\": \"{{USER_ID}}\",\n  \"pickup_address\": \"Park Street, Kolkata\",\n  \"pickup_lat\": 22.5543,\n  \"pickup_lng\": 88.3526,\n  \"drop_address\": \"Salt Lake, Kolkata\",\n  \"drop_lat\": 22.5726,\n  \"drop_lng\": 88.4335\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/orders",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "orders"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Order by ID",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/orders/{{ORDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "orders", "{{ORDER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Customer Orders",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/orders/customer/{{USER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "orders", "customer", "{{USER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Cancel Order",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"reason\": \"Customer changed mind\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/orders/{{ORDER_ID}}/cancel",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "orders", "{{ORDER_ID}}", "cancel"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Dispatch",
+        "item": [
+          {
+            "name": "Get Candidate Riders",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/dispatch/candidates/{{ORDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "dispatch", "candidates", "{{ORDER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Assign Order to Rider",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.assignment && response.assignment.id) {",
+                    "    pm.environment.set('ASSIGNMENT_ID', response.assignment.id);",
+                    "    console.log('Assignment ID saved:', response.assignment.id);",
+                    "}",
+                    "if (response.selected_rider && response.selected_rider.id) {",
+                    "    pm.environment.set('RIDER_ID', response.selected_rider.id);",
+                    "    console.log('Rider ID saved:', response.selected_rider.id);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/dispatch/assign/{{ORDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "dispatch", "assign", "{{ORDER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Reassign Order",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/dispatch/reassign/{{ORDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "dispatch", "reassign", "{{ORDER_ID}}"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Rider Location",
+        "item": [
+          {
+            "name": "Update Location (HTTP)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5543,\n  \"lng\": 88.3526,\n  \"speed\": 25.5,\n  \"accuracy\": 10,\n  \"timestamp\": \"{{$timestamp}}\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Current Location",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Location History",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location/history?limit=50",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location", "history"],
+                "query": [
+                  {
+                    "key": "limit",
+                    "value": "50"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Simulate Movement - Step 1",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5543,\n  \"lng\": 88.3526,\n  \"speed\": 25.5,\n  \"accuracy\": 10\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Simulate Movement - Step 2",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5600,\n  \"lng\": 88.3600,\n  \"speed\": 30.0,\n  \"accuracy\": 8\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Simulate Movement - Step 3 (Near Drop)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5726,\n  \"lng\": 88.4335,\n  \"speed\": 0,\n  \"accuracy\": 5\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Assignments",
+        "item": [
+          {
+            "name": "Accept Assignment",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"rider_id\": \"{{RIDER_ID}}\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}/accept",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "assignments", "{{ASSIGNMENT_ID}}", "accept"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Reject Assignment",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"rider_id\": \"{{RIDER_ID}}\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}/reject",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "assignments", "{{ASSIGNMENT_ID}}", "reject"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Complete Delivery",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"rider_id\": \"{{RIDER_ID}}\",\n  \"otp\": \"123456\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}/complete",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "assignments", "{{ASSIGNMENT_ID}}", "complete"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Assignment Details",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "assignments", "{{ASSIGNMENT_ID}}"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Fraud Detection",
+        "item": [
+          {
+            "name": "Test Teleportation - Location 1",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5543,\n  \"lng\": 88.3526,\n  \"speed\": 25,\n  \"accuracy\": 10,\n  \"timestamp\": \"2025-01-15T10:00:00.000Z\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Test Teleportation - Location 2 (10km away, 1 sec later)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.6543,\n  \"lng\": 88.4526,\n  \"speed\": 25,\n  \"accuracy\": 10,\n  \"timestamp\": \"2025-01-15T10:00:01.000Z\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Test Fake Delivery - Wrong Location",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"lat\": 22.5000,\n  \"lng\": 88.3000,\n  \"speed\": 0,\n  \"accuracy\": 5\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/location",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "location"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Try Complete from Wrong Location",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"rider_id\": \"{{RIDER_ID}}\",\n  \"otp\": \"123456\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/assignments/{{ASSIGNMENT_ID}}/complete",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "assignments", "{{ASSIGNMENT_ID}}", "complete"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get All Fraud Events",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/events",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "events"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Unresolved Fraud Events",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/events/unresolved",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "events", "unresolved"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Run Fraud Checks on Rider",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"order_id\": \"{{ORDER_ID}}\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/checks/{{RIDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "checks", "{{RIDER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Rider Fraud Score",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/score/{{RIDER_ID}}",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "score", "{{RIDER_ID}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Fraud Statistics",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/stats?timeframe=24 hours",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "stats"],
+                "query": [
+                  {
+                    "key": "timeframe",
+                    "value": "24 hours"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Resolve Fraud Event",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"notes\": \"Investigated and resolved. GPS malfunction confirmed.\"\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/fraud/events/{{FRAUD_EVENT_ID}}/resolve",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "fraud", "events", "{{FRAUD_EVENT_ID}}", "resolve"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Rider Management",
+        "item": [
+          {
+            "name": "Get Rider Profile",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/profile",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "profile"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Update Rider Availability",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"available\": true\n}"
+              },
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/availability",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "availability"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Rider Active Orders",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders/{{RIDER_ID}}/orders/active",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders", "{{RIDER_ID}}", "orders", "active"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get All Riders (Admin)",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{BASE_URL}}/api/riders?available=true",
+                "host": ["{{BASE_URL}}"],
+                "path": ["api", "riders"],
+                "query": [
+                  {
+                    "key": "available",
+                    "value": "true"
+                  }
+                ]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "Health Check",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{BASE_URL}}/health",
+            "host": ["{{BASE_URL}}"],
+            "path": ["health"]
+          }
+        },
+        "response": []
+      }
+    ],
+    "variable": [
+      {
+        "key": "BASE_URL",
+        "value": "http://localhost:3000",
+        "type": "string"
+      }
+    ]
+  }
