@@ -4,9 +4,11 @@ Complete backend system for food delivery with real-time rider tracking, order d
 
 ## 🌐 Live Deployment
 
-**API Base URL:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/)
+**🚀 API Base URL:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/)
 
-**Health Check:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health)
+**💚 Health Check:** [https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health](https://food-delivery-order-dispatch-algorithim-wrfi.onrender.com/health)
+
+**📡 WebSocket URL:** `wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com`
 
 ## 🎯 Features
 
@@ -490,7 +492,7 @@ wscat -c wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com
 ### Using Postman WebSocket (if supported)
 
 1. Create new WebSocket request
-2. URL (local): `ws://localhost:3000`
+2. URL (local): `ws://localhost:3004`
 3. URL (live): `wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com`
 4. Send auth message first
 5. Then send location updates or subscribe messages
@@ -502,7 +504,7 @@ wscat -c wss://food-delivery-order-dispatch-algorithim-wrfi.onrender.com
 ### Environment Variables
 ```bash
 # Server
-PORT=3000
+PORT=3004
 NODE_ENV=development
 
 # Database
