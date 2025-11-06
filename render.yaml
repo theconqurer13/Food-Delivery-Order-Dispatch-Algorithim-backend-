@@ -16,6 +16,7 @@ services:
       - key: REDIS_URL
         fromService:
           type: redis
+          name: food-delivery-redis
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
@@ -23,3 +24,18 @@ services:
         value: 30
       - key: USE_POSTGIS
         value: false
+
+  - type: redis
+    name: food-delivery-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
+databases:
+  - name: food-delivery-db
+    databaseName: food_delivery
+    user: food_delivery_user
+
+services:
+  - type: redis
+    name: food-delivery-redis
+    plan: free
