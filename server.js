@@ -49,14 +49,22 @@ app.get('/health', async (req, res) => {
     await pool.query('SELECT 1');
     
     // Check Redis
-    await redisClient.ping();
+    let redisStatus = 'disconnected';
+    try {
+      if (redisClient.isOpen) {
+        await redisClient.ping();
+        redisStatus = 'connected';
+      }
+    } catch (redisError) {
+      console.log('Redis health check failed:', redisError.message);
+    }
 
     res.json({ 
       status: 'healthy',
       timestamp: new Date().toISOString(),
       services: {
         postgres: 'connected',
-        redis: 'connected',
+        redis: redisStatus,
         websocket: 'running'
       }
     });
@@ -142,8 +150,21 @@ process.on('SIGTERM', async () => {
     console.log('HTTP server closed');
     
     // Close database connections
-    await pool.end();
-    await redisClient.quit();
+    try {
+      await pool.end();
+      console.log('Database connection closed');
+    } catch (err) {
+      console.error('Error closing database:', err);
+    }
+    
+    try {
+      if (redisClient.isOpen) {
+        await redisClient.quit();
+        console.log('Redis connection closed');
+      }
+    } catch (err) {
+      console.error('Error closing Redis:', err);
+    }
     
     process.exit(0);
   });

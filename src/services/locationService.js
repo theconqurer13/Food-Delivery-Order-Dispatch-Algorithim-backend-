@@ -17,29 +17,39 @@ class LocationService {
         throw new Error('Invalid coordinates');
       }
 
-      // Store in Redis with TTL
-      const key = `rider:live:${riderId}`;
-      const value = JSON.stringify({
-        lat: parseFloat(lat),
-        lng: parseFloat(lng),
-        speed: parseFloat(speed) || 0,
-        accuracy: parseFloat(accuracy) || 0,
-        timestamp: timestamp || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+      // Store in Redis with TTL (if available)
+      const storedIn = [];
+      
+      if (redisClient.isOpen) {
+        try {
+          const key = `rider:live:${riderId}`;
+          const value = JSON.stringify({
+            lat: parseFloat(lat),
+            lng: parseFloat(lng),
+            speed: parseFloat(speed) || 0,
+            accuracy: parseFloat(accuracy) || 0,
+            timestamp: timestamp || new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
 
-      const ttl = parseInt(process.env.LOCATION_TTL_SECONDS) || 30;
-      await redisClient.setEx(key, ttl, value);
+          const ttl = parseInt(process.env.LOCATION_TTL_SECONDS) || 30;
+          await redisClient.setEx(key, ttl, value);
+          storedIn.push('redis');
+        } catch (redisError) {
+          console.warn('Redis unavailable, using DB only:', redisError.message);
+        }
+      }
 
       // Save to database for history
       await this.saveLocationToDb(riderId, lat, lng, speed, accuracy);
+      storedIn.push('postgres');
 
       return { 
         success: true, 
         riderId, 
         lat: parseFloat(lat), 
         lng: parseFloat(lng),
-        stored_in: ['redis', 'postgres']
+        stored_in: storedIn
       };
     } catch (error) {
       console.error('Error updating location:', error);
@@ -74,11 +84,14 @@ class LocationService {
    */
   static async getCurrentLocation(riderId) {
     try {
-      const key = `rider:live:${riderId}`;
-      const data = await redisClient.get(key);
-      
-      if (data) {
-        return JSON.parse(data);
+      // Try Redis first if available
+      if (redisClient.isOpen) {
+        const key = `rider:live:${riderId}`;
+        const data = await redisClient.get(key);
+        
+        if (data) {
+          return JSON.parse(data);
+        }
       }
 
       // Fallback to last DB location
