@@ -2,22 +2,7 @@ const redis = require('redis');
 require('dotenv').config();
 
 // Create Redis client
-const redisUrl = process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
-
-const redisOptions = {
-  url: redisUrl,
-  socket: {
-    reconnectStrategy: (retries) => {
-      if (retries > 10) {
-        console.error('❌ Too many Redis reconnection attempts');
-        return new Error('Too many retries');
-      }
-      return Math.min(retries * 100, 3000); // Reconnect with a max delay of 3s
-    },
-    connectTimeout: 10000, // 10 seconds connection timeout
-    keepAlive: 30000, // Keep alive ping every 30 seconds
-  }
-};
+let redisUrl = process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
 
 // Enable TLS for production Redis services (Upstash, Render, etc.)
 // Render uses rediss:// (with double 's') or requires TLS even with redis://
@@ -36,7 +21,30 @@ const requiresTLS = hasRedissProtocol ||
                     isCloudProvider ||
                     (isProduction && process.env.REDIS_URL && !redisUrl.includes('localhost'));
 
-if (requiresTLS) {
+// If TLS is required but URL uses redis://, convert to rediss://
+// The Redis client library requires the protocol to match the TLS setting
+if (requiresTLS && redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
+  redisUrl = redisUrl.replace('redis://', 'rediss://');
+  console.log('🔄 Converted Redis URL to use TLS protocol (rediss://)');
+}
+
+const redisOptions = {
+  url: redisUrl,
+  socket: {
+    reconnectStrategy: (retries) => {
+      if (retries > 10) {
+        console.error('❌ Too many Redis reconnection attempts');
+        return new Error('Too many retries');
+      }
+      return Math.min(retries * 100, 3000); // Reconnect with a max delay of 3s
+    },
+    connectTimeout: 10000, // 10 seconds connection timeout
+    keepAlive: 30000, // Keep alive ping every 30 seconds
+  }
+};
+
+// Enable TLS socket option if using rediss:// protocol
+if (redisUrl.startsWith('rediss://')) {
   redisOptions.socket.tls = true;
   // For Render and other cloud providers, reject unauthorized certificates
   redisOptions.socket.rejectUnauthorized = true;
