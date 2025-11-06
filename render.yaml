@@ -2,7 +2,7 @@ services:
   - type: web
     name: food-delivery-api
     env: node
-    buildCommand: npm install
+    buildCommand: npm install && npm run migrate
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -34,8 +34,4 @@ databases:
   - name: food-delivery-db
     databaseName: food_delivery
     user: food_delivery_user
-
-services:
-  - type: redis
-    name: food-delivery-redis
     plan: free
