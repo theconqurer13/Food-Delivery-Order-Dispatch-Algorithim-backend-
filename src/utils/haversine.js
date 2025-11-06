@@ -9,6 +9,13 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Earth's radius in kilometers
   
   // Convert degrees to radians
+
+
+  lat1 = Number(lat1);
+  lon1 = Number(lon1);
+  lat2 = Number(lat2);
+  lon2 = Number(lon2);
+  
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const lat1Rad = toRad(lat1);
@@ -29,7 +36,7 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
  * Convert degrees to radians
  */
 function toRad(degrees) {
-  return degrees * (Math.PI / 180);
+  return Number(degrees) * Math.PI / 180;
 }
 
 /**
@@ -38,6 +45,9 @@ function toRad(degrees) {
  * Used to limit SQL query before applying Haversine
  */
 function getBoundingBox(lat, lng, radiusKm) {
+  lat = Number(lat);
+  lng = Number(lng);
+  radiusKm = Number(radiusKm);
   const latDelta = radiusKm / 111; // 1 degree lat ≈ 111 km
   const lngDelta = radiusKm / (111 * Math.cos(toRad(lat)));
 
@@ -53,6 +63,11 @@ function getBoundingBox(lat, lng, radiusKm) {
  * Check if a point is within a certain radius of another point
  */
 function isWithinRadius(lat1, lon1, lat2, lon2, radiusKm) {
+  lat1 = Number(lat1);
+  lon1 = Number(lon1);
+  lat2 = Number(lat2);
+  lon2 = Number(lon2);
+  radiusKm = Number(radiusKm);
   const distance = haversineDistance(lat1, lon1, lat2, lon2);
   return distance <= radiusKm;
 }

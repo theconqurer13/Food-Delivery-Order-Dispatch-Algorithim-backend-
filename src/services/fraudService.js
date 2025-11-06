@@ -118,8 +118,10 @@ class FraudService {
 
       // Calculate distance from drop location
       const distance = haversineDistance(
-        drop_lat, drop_lng,
-        riderLocation.lat, riderLocation.lng
+        Number(drop_lat), 
+        Number(drop_lng),
+        Number(riderLocation.lat), 
+        Number(riderLocation.lng)
       );
 
       const MAX_DISTANCE_KM = (parseFloat(process.env.MIN_DELIVERY_GEOFENCE_METERS) || 50) / 1000;

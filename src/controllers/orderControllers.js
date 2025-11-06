@@ -16,8 +16,10 @@ class OrderController {
       // Create order
       const order = await OrderModel.create({
         customer_id,
-        pickup_address, pickup_lat, pickup_lng,
-        drop_address, drop_lat, drop_lng
+        pickup_address, pickup_lat: Number(pickup_lat),
+  pickup_lng: Number(pickup_lng),
+        drop_address, drop_lat: Number(drop_lat),
+  drop_lng: Number(drop_lng)
       });
 
       res.status(201).json({
