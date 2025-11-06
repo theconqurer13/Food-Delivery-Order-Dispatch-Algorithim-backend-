@@ -2,7 +2,38 @@ const redis = require('redis');
 require('dotenv').config();
 
 // Create Redis client
-let redisUrl = process.env.REDIS_URL || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+// Clean REDIS_URL if it contains command-line arguments (e.g., "redis-cli --tls -u redis://...")
+let rawRedisUrl = process.env.REDIS_URL || '';
+if (rawRedisUrl) {
+  // Extract URL from command string if present (e.g., "redis-cli --tls -u redis://..." -> "redis://...")
+  const urlMatch = rawRedisUrl.match(/(redis[s]?:\/\/[^\s]+)/);
+  if (urlMatch) {
+    rawRedisUrl = urlMatch[1];
+  } else if (!rawRedisUrl.startsWith('redis://') && !rawRedisUrl.startsWith('rediss://')) {
+    // If it doesn't look like a URL, ignore it and use host/port instead
+    rawRedisUrl = '';
+  }
+}
+
+// Use cleaned REDIS_URL or construct from host/port
+let redisUrl = rawRedisUrl || `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+
+// Validate URL format
+if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
+  console.error('❌ Invalid Redis URL format. Expected redis:// or rediss://');
+  redisUrl = `redis://${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`;
+  console.log(`   Falling back to: ${redisUrl}`);
+}
+
+// Log Redis configuration (without sensitive data)
+console.log('🔧 Redis Configuration:');
+if (process.env.REDIS_URL) {
+  const urlPreview = redisUrl.substring(0, 20) + '...' + redisUrl.substring(redisUrl.length - 15);
+  console.log(`   Using REDIS_URL: ${urlPreview}`);
+} else {
+  console.log(`   Using REDIS_HOST/REDIS_PORT: ${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || 6379}`);
+  console.log(`   Constructed URL: ${redisUrl}`);
+}
 
 // Enable TLS for production Redis services (Upstash, Render, etc.)
 // Render uses rediss:// (with double 's') or requires TLS even with redis://
